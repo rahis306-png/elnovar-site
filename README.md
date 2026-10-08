@@ -35,3 +35,15 @@ This is a preview, **not yet a live recruitment service**.
 Connect approved form endpoints/ATS or CRM, then add job listings and compliant employer and candidate workflows. Keep secrets in the chosen hosting provider's environment settings, never in frontend JavaScript.
 
 Built for a staged launch; no other GitHub repositories are changed.
+
+
+## Recruitment services & on-page SEO (8 October 2026)
+- Added a detailed six-category services overview at `services/` (all 32 commercial opportunities, plus three commercial formats).
+- Added distinct focused pages at `services/permanent-recruitment/` and `services/recruitment-outsourcing/`.
+- Added industry pages for engineering/manufacturing, logistics/transport and warehousing/industrial.
+- Homepage now includes links to services and sector landing pages.
+- Unique page titles, meta descriptions, canonical URLs, breadcrumb JSON-LD, homepage Organization JSON-LD, semantic headings, sitemap.xml, robots.txt and an SVG favicon.
+- **Important:** The 'Initial focus' label is not a claim that the agency has fulfilled placements or secured clients. 'In development' / 'specialist setup' capabilities must not be represented as operational.
+- SEO base URL is currently `https://rahis306-png.github.io/elnovar-site/`. Update canonical links and sitemap if a custom domain is connected.
+- Enquiry form remains a demo and does not transmit enquiries. The live site must not be used for lead capture until the form backend, privacy notice and legal-entity details have been configured.
+- Google indexing is not automatic: verify the site in Search Console and submit `sitemap.xml` after public hosting is confirmed.

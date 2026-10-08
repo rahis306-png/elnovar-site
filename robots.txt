@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://rahis306-png.github.io/elnovar-site/sitemap.xml
