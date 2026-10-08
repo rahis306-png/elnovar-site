@@ -7,12 +7,38 @@
       menuButton.setAttribute('aria-expanded', String(open));
       menuButton.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     });
-    menu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+    const closeMenu = () => {
       menu.classList.remove('open');
-      menuButton.setAttribute('aria-expanded', 'false');
-      menuButton.setAttribute('aria-label', 'Open menu');
-    }));
+      menuButton.setAttribute('aria-expanded','false');
+      menuButton.setAttribute('aria-label','Open menu');
+    };
+    menu.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+    document.addEventListener('keydown', event => { if(event.key==='Escape')closeMenu(); });
+    document.addEventListener('click', event => { if(!menu.contains(event.target)&&!menuButton.contains(event.target))closeMenu(); });
   }
+
+// Render diagonal arrows as vector icons instead of platform-specific emoji.
+const nodes=[],walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+while(walker.nextNode()){
+  const node=walker.currentNode;
+  if(node.nodeValue.includes('↗')&&!/^(SCRIPT|STYLE|TEXTAREA|OPTION)$/.test(node.parentElement?.tagName||''))nodes.push(node);
+}
+nodes.forEach(node=>{
+  const parts=node.nodeValue.split('↗'),frag=document.createDocumentFragment();
+  parts.forEach((part,i)=>{
+    if(i){
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('class','icon-arrow');svg.setAttribute('viewBox','0 0 24 24');
+      svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.8');
+      svg.setAttribute('stroke-linecap','round');svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
+      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d','M7 17 17 7M8 7h9v9');svg.appendChild(path);frag.appendChild(svg);
+    }
+    if(part)frag.appendChild(document.createTextNode(part));
+  });
+  node.replaceWith(frag);
+});
+
   document.getElementById('year').textContent = new Date().getFullYear();
 
   const switches = Array.from(document.querySelectorAll('[data-audience]'));
@@ -47,7 +73,7 @@
   if (form) {
     form.addEventListener('submit', event => {
       event.preventDefault();
-      feedback.textContent = 'This is a website preview. The form is not connected and no message has been sent.';
+      feedback.textContent = 'Online enquiries are currently unavailable. No message has been sent.';
       feedback.focus?.();
     });
   }
