@@ -51,8 +51,9 @@
     try {widgetId = turnstile.render(widget, {sitekey:config.siteKey});}
     catch {widget.remove();trap.remove();return;}
     form.dataset.enquiryLive = 'true';
+    button.disabled = false;
     const originalButtonHTML = button.innerHTML;
-    button.textContent = 'Send enquiry securely ↗';
+    button.textContent = 'Send enquiry securely';
     if (note) {
       note.textContent = 'Secure submissions are sent to the business contact team only when successfully delivered. Please avoid unnecessary sensitive information. ';
       const link = document.createElement('a');link.href='/privacy/';link.textContent='Read our privacy information.';
@@ -87,7 +88,7 @@
         feedback.textContent = error.message || 'Unable to send. Please try again.';
         turnstile.reset(widgetId);
       } finally {
-        button.disabled = false;button.textContent = 'Send enquiry securely ↗';
+        button.disabled = false;button.textContent = 'Send enquiry securely';
       }
     }, true);
   }
