@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="240" viewBox="0 0 760 240" role="img" aria-labelledby="title desc">
+<title id="title">Elnovar Group proposed logo</title>
+<desc id="desc">The current Elnovar brand symbol and prominent Elnovar wordmark with Group in smaller, spaced uppercase lettering underneath.</desc>
+<rect width="760" height="240" rx="12" fill="#0d1b22"/>
+<g fill="#d9f279" transform="translate(56 68) skewX(-13)">
+  <path d="M0 0h14L3 78h-14z"/>
+  <path d="M27 8h14L30 86H16z"/>
+  <path d="M54 16h14L57 94H43z"/>
+</g>
+<text x="142" y="140" fill="#ffffff" font-family="Manrope, 'DejaVu Sans', sans-serif" font-size="78" font-weight="800" letter-spacing="-5">elnovar</text>
+<circle cx="460" cy="131" r="7" fill="#d9f279"/>
+<text x="454" y="172" fill="#bfcac8" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="8">GROUP</text>
+</svg>
