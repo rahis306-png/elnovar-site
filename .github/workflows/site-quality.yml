@@ -13,5 +13,5 @@ jobs:
           node-version: '22'
       - name: Verify site structure, local links and launch copy
         env:
-          SITE_elnovargroup.co.uk: ${{ vars.SITE_HOST || 'HOST' }}
+          SITE_HOST: elnovargroup.co.uk
         run: node scripts/audit-site.mjs
