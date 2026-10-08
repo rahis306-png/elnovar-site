@@ -32,10 +32,17 @@
 @media(max-width:550px){.home-services-grid,.offers-grid,.industry-role-grid{grid-template-columns:1fr}.home-service-card{min-height:225px}.home-service-bottom{display:block}.home-service-bottom .button{margin-top:23px}.subhero-top{display:block}.subhero-top .section-label{margin-top:22px}.subhero h1{font-size:3.1rem}.offers-section{padding:70px 0}.service-cta{padding:70px 0}.service-cta .button{width:100%}.offer-card{min-height:190px}.detail-intro h2,.faq-layout h2{font-size:2.7rem}.industry-role{min-height:90px}.service-intro h2{font-size:2.8rem}}
 
 
-/* Elnovar Group wordmark — preview on a feature branch, not deployed */
+/* Elnovar Group wordmark */
 .brand-wordmark{display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;min-width:0}
 .brand-primary{display:block;line-height:.94}
 .brand-qualifier{display:block;align-self:flex-end;margin-right:.18em;font-family:'DM Sans',Arial,sans-serif;font-weight:800;font-size:.265em;line-height:1.15;letter-spacing:.3em;color:#bfcac8}
 .footer-brand .brand-qualifier{color:#a9beb8}
 .brand:hover .brand-qualifier{color:var(--lime)}
 @media(max-width:550px){.brand-wordmark{gap:2px}}
+
+/* Production polish and consistent arrow rendering on mobile devices. */
+.icon-arrow{display:inline-block;width:1em;height:1em;vertical-align:-.15em;flex-shrink:0;stroke:currentColor}
+:focus-visible{outline:3px solid #86a84e;outline-offset:3px}
+.form-submit:disabled{opacity:.7;cursor:not-allowed;transform:none}
+@media(max-width:790px){.primary-nav.open{max-height:calc(100dvh - 72px);overflow-y:auto}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
