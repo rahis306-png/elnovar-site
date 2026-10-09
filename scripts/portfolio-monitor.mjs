@@ -38,7 +38,7 @@ try {
    assert(response&&response.ok(),"Homepage inaccessible");
    const meta=await page.locator('meta[name="robots"]').first().getAttribute("content").catch(()=>null);
    const header=response.headers()["x-robots-tag"]||"";
-   const blocked=/\\bnoindex\\b/i.test([meta||"",header].join(" "));
+   const blocked=/\bnoindex\b/i.test([meta||"",header].join(" "));
    assert(cfg.intentionalNoindex?blocked:!blocked,
     cfg.intentionalNoindex?"Pre-launch site unexpectedly became indexable":"Public homepage unexpectedly set to noindex");
   }finally{await page.close();}
