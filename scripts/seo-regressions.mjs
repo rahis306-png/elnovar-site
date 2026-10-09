@@ -1,4 +1,4 @@
-import {readFileSync,existsSync} from "node:fs";
+import {readFileSync,existsSync,readdirSync} from "node:fs";
 import path from "node:path";
 
 const base=process.cwd();
@@ -57,6 +57,23 @@ function checkSitemap(xml,domain,expectedMin){
   if(!urls.length)problems.push("sitemap contains no URLs");
   return {problems,urls};
 }
+function isPublicSitemapCandidate(file,html) {
+  if(file==="404.html"||file==="public/index.html")return false;
+  const directive=attribute(namedMeta(html,"robots"),"content").toLowerCase();
+  return !/(^|[\s,])noindex($|[\s,])/.test(directive);
+}
+function findHtml(folder,baseFolder=folder) {
+  const entries=[];
+  for(const item of readdirSync(folder,{withFileTypes:true})){
+    if(item.isDirectory()){
+      if(![".git",".github","docs","scripts","node_modules","public","functions","tests","outreach","branding"].includes(item.name))
+        entries.push(...findHtml(path.join(folder,item.name),baseFolder));
+    }else if(item.isFile()&&item.name.endsWith(".html")){
+      entries.push(path.relative(baseFolder,path.join(folder,item.name)).replaceAll(path.sep,"/"));
+    }
+  }
+  return entries;
+}
 function selfTest(){
  const url="https://example.test/";
  const sample='<html><head><title>Unique example title</title><meta name="description" content="A clear description that is much longer than thirty-five characters."><link rel="canonical" href="'+url+'"><meta name="robots" content="index,follow"><script type="application/ld+json">{"@type":"Organization"}</script></head><body><h1>Test</h1></body></html>';
@@ -70,6 +87,8 @@ function selfTest(){
  ])if(!auditPage(bad,url,false).problems.length)throw Error("Negative fixture slipped through: "+name);
  if(!checkSitemap("<urlset><url><loc>"+url+"</loc></url><url><loc>"+url+"</loc></url></urlset>","example.test",1).problems.some(x=>x.includes("duplicate")))throw Error("Duplicate sitemap fixture undetected");
  if(!checkSitemap("<urlset><url><loc>https://incorrect.test/</loc></url></urlset>","example.test",1).problems.some(x=>x.includes("origin")))throw Error("Sitemap host fixture undetected");
+ if(!isPublicSitemapCandidate("services/index.html",sample))throw Error("Eligible page fixture not detected");
+ if(isPublicSitemapCandidate("privacy/index.html",sample.replace("index,follow","noindex,follow")))throw Error("Intentional private noindex fixture improperly flagged");
  console.log("SEO guard negative fixtures PASS (H1, canonical, noindex, JSON-LD, titles, sitemap duplicate/host).");
 }
 if(process.argv.includes("--self-test"))selfTest();
@@ -96,6 +115,14 @@ else{
      if(knownDescriptions.has(result.description))problems.push(route+": duplicate meta description also on "+knownDescriptions.get(result.description));
      else knownDescriptions.set(result.description,route);
    }
+ }
+ // Ensure ordinary public HTML pages are not silently orphaned from the sitemap.
+ const inSitemap=new Set(urls);
+ for(const file of findHtml(base)){
+   const html=readFileSync(path.join(base,file),"utf8");
+   if(!isPublicSitemapCandidate(file,html))continue;
+   const expected="https://"+host+"/"+file.replace(/index\.html$/,"");
+   if(!inSitemap.has(expected))problems.push(file+": indexable public page missing from sitemap");
  }
  const headers=existsSync(path.join(base,"_headers"))?readFileSync(path.join(base,"_headers"),"utf8"):"";
  const globalNoindex=/\/\*\s*[\r\n]+(?:\s+[^\r\n]*[\r\n]+)*?\s+X-Robots-Tag:\s*noindex/i.test(headers);
