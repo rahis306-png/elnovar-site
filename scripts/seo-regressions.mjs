@@ -60,7 +60,7 @@ function checkSitemap(xml,domain,expectedMin){
 function isPublicSitemapCandidate(file,html) {
   if(file==="404.html"||file==="public/index.html")return false;
   const directive=attribute(namedMeta(html,"robots"),"content").toLowerCase();
-  return !/(^|[\\s,])noindex($|[\\s,])/.test(directive);
+  return !/(^|[\s,])noindex($|[\s,])/.test(directive);
 }
 function findHtml(folder,baseFolder=folder) {
   const entries=[];
@@ -121,7 +121,7 @@ else{
  for(const file of findHtml(base)){
    const html=readFileSync(path.join(base,file),"utf8");
    if(!isPublicSitemapCandidate(file,html))continue;
-   const expected="https://"+host+"/"+file.replace(/index\\.html$/,"");
+   const expected="https://"+host+"/"+file.replace(/index\.html$/,"");
    if(!inSitemap.has(expected))problems.push(file+": indexable public page missing from sitemap");
  }
  const headers=existsSync(path.join(base,"_headers"))?readFileSync(path.join(base,"_headers"),"utf8"):"";
