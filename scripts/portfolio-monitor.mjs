@@ -100,13 +100,14 @@ try {
   }finally{await page.close();}
  });
  await check("accessibility-critical","No critical/serious automated WCAG findings on homepage",async()=>{
-  const page=await browser.newPage({viewport:{width:1280,height:800},reducedMotion:"reduce"});
+  const axeContext=await browser.newContext({viewport:{width:1280,height:800},reducedMotion:"reduce"});
+  const page=await axeContext.newPage();
   try{
    await page.goto(root+"/",{waitUntil:"domcontentloaded",timeout:30000});
    const results=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa"]).analyze();
    const severe=results.violations.filter(x=>x.impact==="serious"||x.impact==="critical");
    assert(!severe.length,severe.map(x=>x.id+": "+x.help+" ("+x.nodes.length+" elements)").join("; ").slice(0,1200));
-  }finally{await page.close();}
+  }finally{await axeContext.close();}
  });
 }finally{await browser.close();}
 const summary={site:cfg.site,domain:cfg.domain,checkedAt:new Date().toISOString(),baseUrl:root,checks};
