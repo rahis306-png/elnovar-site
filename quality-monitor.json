@@ -1,0 +1,15 @@
+{
+  "site": "ELNOVAR Group",
+  "domain": "elnovargroup.co.uk",
+  "webRoot": ".",
+  "routes": [
+    "/",
+    "/services/",
+    "/services/permanent-recruitment/",
+    "/industries/engineering-manufacturing/",
+    "/privacy/"
+  ],
+  "conversionRoute": "/",
+  "conversionSelector": "main",
+  "intentionalNoindex": false
+}
