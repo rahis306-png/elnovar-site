@@ -16,6 +16,16 @@ jobs:
           SITE_HOST: elnovargroup.co.uk
         run: node scripts/audit-site.mjs
 
+      - name: Self-test SEO guard with negative fixtures
+        run: node scripts/seo-regressions.mjs --self-test
+
+      - name: Enforce sitemap parity, metadata uniqueness and deliberate indexability
+        env:
+          SITE_HOST: elnovargroup.co.uk
+          SITE_SITEMAP_EXPECTED: "7"
+          SITE_EXPECT_NOINDEX: "no"
+        run: node scripts/seo-regressions.mjs
+
       - name: Check browser JavaScript syntax
         run: |
           node --check script.js
