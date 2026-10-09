@@ -1,0 +1,88 @@
+name: Free website quality monitor
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '27 5 * * *'
+    - cron: '27 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: quality-monitor-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-audit:
+    name: Browser, mobile, SEO and accessibility audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install free Playwright and accessibility tools
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1 @axe-core/playwright@4.10.2
+          npx playwright install --with-deps chromium
+      - name: Serve source for PR and main branch checks
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        run: |
+          WEB_ROOT=$(node -p "require('./quality-monitor.json').webRoot")
+          python3 -m http.server 4173 --directory "$WEB_ROOT" > /tmp/quality-preview.log 2>&1 &
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:4173/ > /dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/quality-preview.log
+          exit 1
+      - name: Run actual browser checks (advisory until baselined)
+        continue-on-error: true
+        env:
+          MONITOR_BASE_URL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'https://elnovargroup.co.uk' || 'http://127.0.0.1:4173' }}
+        run: node scripts/portfolio-monitor.mjs
+      - name: Retain screenshots and structured findings for 5 days
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-quality-${{ github.run_id }}
+          path: quality-artifacts/
+          if-no-files-found: warn
+          retention-days: 5
+      - name: Create, deduplicate or resolve production quality issues
+        if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fn = require(process.env.GITHUB_WORKSPACE + '/scripts/quality-issues.cjs');
+            await fn({ github, context, core });
+
+  weekly-lighthouse:
+    name: Weekly Lighthouse baseline report
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '27 3 * * 1')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate independent mobile performance and SEO report
+        run: |
+          mkdir -p quality-artifacts
+          npx --yes lighthouse@12 https://elnovargroup.co.uk/ --chrome-flags="--headless --no-sandbox" --form-factor=mobile --output=json --output-path=quality-artifacts/lighthouse.json --quiet
+          node -e 'const r=require("./quality-artifacts/lighthouse.json");for(const [k,v] of Object.entries(r.categories))console.log(k+": "+Math.round(v.score*100)+"/100");'
+      - name: Save Lighthouse JSON report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-${{ github.run_id }}
+          path: quality-artifacts/lighthouse.json
+          if-no-files-found: warn
+          retention-days: 5
