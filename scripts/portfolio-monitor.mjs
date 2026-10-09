@@ -32,6 +32,17 @@ try {
    } finally{await page.close();}
   });
  }
+ await check("index-policy","Production search indexing policy matches current launch state",async()=>{
+  const page=await browser.newPage();try{
+   const response=await page.goto(root+"/",{waitUntil:"domcontentloaded",timeout:30000});
+   assert(response&&response.ok(),"Homepage inaccessible");
+   const meta=await page.locator('meta[name="robots"]').first().getAttribute("content").catch(()=>null);
+   const header=response.headers()["x-robots-tag"]||"";
+   const blocked=/\\bnoindex\\b/i.test([meta||"",header].join(" "));
+   assert(cfg.intentionalNoindex?blocked:!blocked,
+    cfg.intentionalNoindex?"Pre-launch site unexpectedly became indexable":"Public homepage unexpectedly set to noindex");
+  }finally{await page.close();}
+ });
  await check("crawl-basics","Robots and sitemap are reachable",async()=>{
   const context=await browser.newContext();try{
    for(const [path,needle] of [["/robots.txt","Sitemap:"],["/sitemap.xml","<urlset"]]){
