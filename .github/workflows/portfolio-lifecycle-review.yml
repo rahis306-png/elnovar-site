@@ -1,0 +1,75 @@
+name: Weekly security and monthly lifecycle reviews
+on:
+  pull_request:
+    paths:
+      - 'scripts/site-maintenance.mjs'
+      - '.github/workflows/portfolio-lifecycle-review.yml'
+      - 'docs/WEBSITE_LIFECYCLE.md'
+  workflow_dispatch:
+  schedule:
+    - cron: '31 4 * * 0'
+    - cron: '31 4 4 * *'
+permissions:
+  contents: read
+concurrency:
+  group: maintenance-${{ github.repository }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    name: Offline maintenance test fixtures
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check scripts/site-maintenance.mjs
+          node scripts/site-maintenance.mjs --self-test
+  security:
+    name: Weekly production and repository security review
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '31 4 * * 0')
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit production security posture (read-only)
+        env:
+          SITE_MODE: ${{ vars.SITE_MODE || 'development' }}
+        run: node scripts/site-maintenance.mjs security
+      - name: Upload weekly review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-review-${{ github.run_id }}
+          path: maintenance-artifacts/
+          retention-days: 14
+          if-no-files-found: warn
+  monthly:
+    name: Monthly production SEO and measurement evidence
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '31 4 4 * *')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Crawl public sitemap URLs and record actual measurement availability
+        env:
+          SITE_MODE: ${{ vars.SITE_MODE || 'development' }}
+        run: node scripts/site-maintenance.mjs monthly
+      - name: Upload monthly review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monthly-review-${{ github.run_id }}
+          path: maintenance-artifacts/
+          retention-days: 30
+          if-no-files-found: warn

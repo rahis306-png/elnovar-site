@@ -6,7 +6,7 @@ on:
     branches: [main]
   schedule:
     - cron: '27 5 * * *'
-    - cron: '27 3 * * 1'
+    - cron: '31 4 4 * *'
   workflow_dispatch:
 
 permissions:
@@ -68,9 +68,9 @@ jobs:
             const fn = require(process.env.GITHUB_WORKSPACE + '/scripts/quality-issues.cjs');
             await fn({ github, context, core });
 
-  weekly-lighthouse:
-    name: Weekly Lighthouse baseline report
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '27 3 * * 1')
+  monthly-lighthouse:
+    name: Monthly Lighthouse mobile and desktop report
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '31 4 4 * *')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -83,11 +83,17 @@ jobs:
           mkdir -p quality-artifacts
           npx --yes lighthouse@12 https://elnovargroup.co.uk/ --chrome-flags="--headless --no-sandbox" --form-factor=mobile --output=json --output-path=quality-artifacts/lighthouse.json --quiet
           node -e 'const r=require("./quality-artifacts/lighthouse.json");for(const [k,v] of Object.entries(r.categories))console.log(k+": "+Math.round(v.score*100)+"/100");'
+      - name: Generate desktop Lighthouse performance and SEO report
+        run: |
+          npx --yes lighthouse@12 https://elnovargroup.co.uk/ --chrome-flags="--headless --no-sandbox" --preset=desktop --output=json --output-path=quality-artifacts/lighthouse-desktop.json --quiet
+          node -e 'const r=require("./quality-artifacts/lighthouse-desktop.json");for(const [k,v] of Object.entries(r.categories))console.log("desktop "+k+": "+Math.round(v.score*100)+"/100");'
       - name: Save Lighthouse JSON report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-${{ github.run_id }}
-          path: quality-artifacts/lighthouse.json
+          path: |
+            quality-artifacts/lighthouse.json
+            quality-artifacts/lighthouse-desktop.json
           if-no-files-found: warn
           retention-days: 5

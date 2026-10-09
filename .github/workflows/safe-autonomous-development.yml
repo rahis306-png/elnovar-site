@@ -27,7 +27,7 @@ jobs:
           node scripts/ai-safe-development.mjs validate
   code:
     needs: preflight
-    if: github.event_name != 'pull_request' && (github.event_name == 'workflow_dispatch' || vars.AUTO_DEV_ENABLED == 'true')
+    if: github.event_name != 'pull_request' && vars.SITE_MODE != 'maintenance' && (github.event_name == 'workflow_dispatch' || vars.AUTO_DEV_ENABLED == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 11
     permissions:
