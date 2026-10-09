@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "repo": "rahis306-png/elnovar-site",
+  "tasks": [
+    {
+      "issue": 7,
+      "description": "Review and refine UK recruitment page titles, meta descriptions, clear primary H1 and relevant, non-deceptive structured-data syntax on seven existing Elnovar sitemap pages. Never invent job listings, vacancies, candidate placements, figures or holding-company links. Preserve privacy page noindex and secure-enquiry gate.",
+      "allowedPaths": [
+        "index.html",
+        "services/index.html",
+        "services/permanent-recruitment/index.html",
+        "services/recruitment-outsourcing/index.html",
+        "industries/engineering-manufacturing/index.html",
+        "industries/logistics-transport/index.html",
+        "industries/warehousing-industrial/index.html"
+      ]
+    },
+    {
+      "issue": 8,
+      "description": "Improve verified recruitment services and industrial/employer intent with useful internal links between existing Elnovar service and sector pages. Keep claims evidence-led and avoid inventing active vacancies or legal/group identity.",
+      "allowedPaths": [
+        "index.html",
+        "services/index.html",
+        "services/permanent-recruitment/index.html",
+        "services/recruitment-outsourcing/index.html",
+        "industries/engineering-manufacturing/index.html",
+        "industries/logistics-transport/index.html",
+        "industries/warehousing-industrial/index.html"
+      ]
+    }
+  ]
+}
