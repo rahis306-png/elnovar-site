@@ -106,6 +106,20 @@ try {
    await page.goto(root+"/",{waitUntil:"domcontentloaded",timeout:30000});
    const results=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa"]).analyze();
    const severe=results.violations.filter(x=>x.impact==="serious"||x.impact==="critical");
+   for (const violation of severe) {
+    console.log("A11Y_DIAG",JSON.stringify({
+      rule:violation.id,
+      impact:violation.impact,
+      total:violation.nodes.length,
+      firstNodes:violation.nodes.slice(0,55).map(node=>({
+        target:node.target,
+        contrast:node.any.map(check=>({message:String(check.message||"").slice(0,190),
+          fgColor:check.data?.fgColor,bgColor:check.data?.bgColor,
+          contrastRatio:check.data?.contrastRatio,expectedContrastRatio:check.data?.expectedContrastRatio
+        })).filter(item=>item.contrastRatio!==undefined||/contrast/i.test(item.message)).slice(0,2)
+      }))
+    }));
+   }
    assert(!severe.length,severe.map(x=>x.id+": "+x.help+" ("+x.nodes.length+" elements)").join("; ").slice(0,1200));
   }finally{await axeContext.close();}
  });
